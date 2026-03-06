@@ -1,0 +1,87 @@
+version: 2
+
+seeds:
+  - name: raw_customers
+    description: >
+      Seeded customer input representing the supplied staged customer extract from
+      the task brief. This seed is treated as a provided upstream input and forms
+      the customer-side starting contract for downstream intermediate models.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer record.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_name
+        description: Customer name as supplied in the staged extract.
+      - name: customer_email
+        description: Customer email address as supplied in the staged extract.
+        data_tests:
+          - not_null
+      - name: signup_at
+        description: Customer signup timestamp from the supplied staged extract.
+        data_tests:
+          - not_null
+      - name: metadata_super
+        description: JSON-style customer metadata payload retained from the staged extract.
+      - name: region_raw
+        description: Region value from the supplied staged extract prior to downstream normalisation.
+      - name: marketing_source_raw
+        description: Marketing source value from the supplied staged extract prior to downstream normalisation.
+
+  - name: raw_subscriptions
+    description: >
+      Seeded subscription input representing the supplied staged subscription
+      extract from the task brief. This seed contains one row per subscription
+      record and preserves the upstream status and date fields for downstream
+      cleaning and subscription-resolution logic.
+    columns:
+      - name: subscription_id
+        description: Unique identifier for the subscription record.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer identifier associated with the subscription record.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('raw_customers')
+                field: customer_id
+      - name: plan_id
+        description: Plan identifier associated with the subscription record.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('raw_plans')
+                field: plan_id
+      - name: status_code
+        description: Subscription status value as supplied in the staged extract prior to downstream normalisation.
+      - name: subscription_start_date
+        description: Subscription start date as supplied in the staged extract.
+        data_tests:
+          - not_null
+      - name: subscription_end_date
+        description: Subscription end date as supplied in the staged extract. May be null for open-ended records.
+
+  - name: raw_plans
+    description: >
+      Seeded plan input representing the supplied staged plan extract from the
+      task brief. This seed provides the plan-level pricing reference used in
+      downstream subscription and revenue models.
+    columns:
+      - name: plan_id
+        description: Unique identifier for the subscription plan.
+        data_tests:
+          - unique
+          - not_null
+      - name: plan_name
+        description: Human-readable plan name.
+        data_tests:
+          - not_null
+      - name: monthly_cost
+        description: Monthly list price for the plan in the supplied staged extract.
+        data_tests:
+          - not_null
