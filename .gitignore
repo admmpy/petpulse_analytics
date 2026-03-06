@@ -1,0 +1,22 @@
+# dbt artefacts
+target/
+dbt_packages/
+logs/
+
+# Local profile
+profiles.yml
+.user.yml
+
+# Local DuckDB database files
+*.duckdb
+*.duckdb.wal
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS / editor files
+.DS_Store
+.vscode/
+.idea/
+dbt_internal_packages/

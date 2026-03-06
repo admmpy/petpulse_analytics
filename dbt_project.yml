@@ -1,0 +1,37 @@
+name: 'petpulse_analytics'
+version: '1.0.0'
+config-version: 2
+
+profile: 'petpulse_analytics'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  petpulse_analytics:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table
+      dimensions:
+        +materialized: table
+      facts:
+        +materialized: table
+
+seeds:
+  petpulse_analytics:
+    +schema: staging
+    +quote_columns: false
