@@ -1,0 +1,53 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >
+      Business-facing one-row-per-customer dimension combining cleaned customer
+      attributes, current subscription state, and total lifetime value derived
+      from prorated monthly recurring revenue within the supplied dataset
+      window. Current status is taken from the latest resolved subscription
+      interval, while current plan fields are populated only for open-ended
+      current subscriptions.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_name
+        description: Cleaned customer name.
+      - name: customer_email
+        description: Cleaned customer email address.
+        data_tests:
+          - not_null
+      - name: region
+        description: Cleaned customer region.
+      - name: signup_at
+        description: Customer signup timestamp.
+      - name: current_subscription_status
+        description: >
+          Current resolved subscription status from the latest resolved
+          interval, even when the latest state is cancelled or pending.
+      - name: total_lifetime_value
+        description: >
+          Sum of prorated monthly recurring revenue across all revenue-bearing
+          months available in the supplied dataset window.
+      - name: marketing_source
+        description: Cleaned marketing source value.
+      - name: current_plan_id
+        description: Current plan identifier from the latest open-ended resolved interval, if present.
+      - name: current_plan_name
+        description: Current plan name from the latest open-ended resolved interval, if present.
+      - name: current_monthly_cost
+        description: Current monthly plan cost from the latest open-ended resolved interval, if present.
+      - name: current_subscription_start_date
+        description: Start date of the latest open-ended resolved interval, if present.
+      - name: first_subscription_start_date
+        description: Earliest resolved subscription start date observed for the customer.
+      - name: latest_subscription_end_date
+        description: Latest non-null resolved subscription end date observed for the customer.
+      - name: has_ever_billable_subscription
+        description: True when the customer has ever had a billable resolved interval.
+      - name: has_ever_cancelled
+        description: True when the customer has ever had a resolved cancelled interval.
