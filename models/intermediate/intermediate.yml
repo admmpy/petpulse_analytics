@@ -113,3 +113,54 @@ models:
         description: Cleaned region value with literal None converted to null.
       - name: marketing_source
         description: Cleaned marketing source value with literal None converted to null.
+
+  - name: int_customer_subscription_summary
+    description: >
+      One-row-per-customer subscription history summary derived from the resolved
+      subscription timeline. Current subscription status is taken from the
+      customer's latest resolved interval after overlap resolution, regardless
+      of whether that latest state is active, cancelled, or pending. Current
+      plan fields are populated only when that latest interval is open-ended,
+      so a non-null current status can legitimately appear alongside null
+      current plan attributes.
+    columns:
+      - name: customer_id
+        description: Customer identifier at one-row-per-customer grain.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('raw_customers')
+                field: customer_id
+      - name: current_subscription_status
+        description: >
+          Current resolved status from the customer's latest resolved interval
+          after overlap resolution, including active, cancelled, or pending.
+      - name: current_plan_id
+        description: >
+          Plan identifier from the customer's latest resolved interval only when
+          that interval is open-ended; null for customers whose latest resolved
+          state is closed.
+      - name: current_plan_name
+        description: >
+          Plan name from raw_plans for the customer's latest resolved interval
+          only when that interval is open-ended.
+      - name: current_monthly_cost
+        description: >
+          Monthly price from the customer's latest resolved interval only when
+          that interval is open-ended.
+      - name: current_subscription_start_date
+        description: >
+          Start date of the customer's latest resolved interval only when that
+          interval is open-ended.
+      - name: first_subscription_start_date
+        description: Earliest resolved subscription start date for the customer.
+      - name: latest_subscription_end_date
+        description: Latest non-null resolved end date observed for the customer.
+      - name: has_ever_billable_subscription
+        description: True when the customer has at least one billable resolved interval.
+      - name: has_ever_cancelled
+        description: True when the customer has at least one resolved cancelled interval.
+      - name: total_resolved_intervals
+        description: Count of resolved subscription intervals for the customer.
