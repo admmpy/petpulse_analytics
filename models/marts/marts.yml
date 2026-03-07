@@ -1,6 +1,46 @@
 version: 2
 
 models:
+  - name: fct_mrr_monthly
+    description: >
+      Customer-month recurring revenue fact with one row for each customer-month
+      where billable recurring revenue exists; customer-months with no billable
+      revenue are intentionally omitted. MRR is defined as the prorated share
+      of monthly plan price earned during billable active days in the month
+      after overlapping raw subscriptions have been resolved upstream. Pending
+      intervals are excluded because they are non-billable. Open-ended
+      intervals are extended only to the latest observable date in the supplied
+      dataset so the result remains reproducible for this static take-home
+      exercise, which means the final month in the fact may be partial.
+    columns:
+      - name: customer_id
+        description: Customer identifier for a revenue-bearing customer-month row.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('raw_customers')
+                field: customer_id
+      - name: revenue_month
+        description: >
+          First day of the calendar month for a revenue-bearing customer-month
+          row. Months with zero billable recurring revenue are not materialised
+          in this fact.
+        data_tests:
+          - not_null
+      - name: active_days_in_month
+        description: Total billable active days attributed to the customer within the month.
+      - name: days_in_month
+        description: Total number of days in the calendar month.
+      - name: mrr_amount
+        description: >
+          Prorated recurring revenue calculated as SUM(monthly_cost *
+          active_days_in_month / days_in_month) across all sequential billable
+          intervals in the month. For open-ended subscriptions, the final month
+          is capped to the latest observable date in the supplied dataset.
+        data_tests:
+          - not_null
+
   - name: dim_customers
     description: >
       Business-facing one-row-per-customer dimension combining cleaned customer
