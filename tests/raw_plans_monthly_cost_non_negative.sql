@@ -1,3 +1,3 @@
-select *
-from {{ ref('raw_plans') }}
-where monthly_cost < 0
+SELECT *
+FROM {{ ref('raw_plans') }}
+WHERE monthly_cost < 0

@@ -17,9 +17,6 @@ clean-targets:
 
 models:
   petpulse_analytics:
-    staging:
-      +schema: staging
-      +materialized: view
     intermediate:
       +schema: intermediate
       +materialized: view
