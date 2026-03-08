@@ -16,6 +16,7 @@ WITH latest_intervals AS (
         res.customer_id,
         res.resolved_status                                                               AS current_subscription_status,
         CASE
+            -- Plan fields are only "current" when the latest interval is still open.
             WHEN res.resolved_end_date IS NULL THEN res.resolved_plan_id
             ELSE NULL
         END                                                                               AS current_plan_id,
@@ -34,6 +35,7 @@ WITH latest_intervals AS (
         ROW_NUMBER() OVER (
             PARTITION BY res.customer_id
             ORDER BY
+                -- If dates tie, prefer the strongest present-day business signal.
                 res.resolved_start_date DESC,
                 COALESCE(res.resolved_end_date, CAST('2999-12-31' AS DATE)) DESC,
                 CASE WHEN res.is_billable THEN 1 ELSE 0 END DESC,

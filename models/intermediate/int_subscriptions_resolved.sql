@@ -39,6 +39,7 @@ subscriptions_clean AS (
             ELSE NULL
         END                                                                               AS resolved_status,
         start_date,
+        -- Carry open-ended intervals through resolution with a sentinel end date.
         COALESCE(end_date_raw, CAST('2999-12-31' AS DATE))                                AS end_date,
         monthly_cost,
         CASE
@@ -131,6 +132,7 @@ winners AS (
     QUALIFY ROW_NUMBER() OVER (
         PARTITION BY seg.customer_id, seg.segment_start, seg.segment_end
         ORDER BY
+            -- Prefer billable states first, then the stronger business status.
             CASE WHEN sub.is_billable THEN 1 ELSE 0 END DESC,
             sub.status_precedence DESC,
             sub.start_date DESC,
@@ -219,7 +221,7 @@ grouped AS (
 ),
 
 final AS (
-    -- Return one row per resolved interval; convert open-ended sentinel back to NULL.
+    -- Collapse adjacent winning segments back into analyst-friendly intervals.
     SELECT
         customer_id,
         resolved_subscription_id,
@@ -227,6 +229,7 @@ final AS (
         resolved_status,
         MIN(segment_start)                                                                AS resolved_start_date,
         CASE
+            -- Restore open-ended intervals for downstream current-state logic.
             WHEN MAX(segment_end) = CAST('2999-12-31' AS DATE) THEN NULL
             ELSE MAX(segment_end)
         END                                                                               AS resolved_end_date,

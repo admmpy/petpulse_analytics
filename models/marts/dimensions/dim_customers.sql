@@ -28,6 +28,7 @@ final AS (
         cust.region,
         cust.signup_at,
         sub.current_subscription_status,
+        -- Customers without billable history should still appear with zero value.
         COALESCE(ltv.total_lifetime_value, 0)                                             AS total_lifetime_value,
         cust.marketing_source,
         sub.current_plan_id,

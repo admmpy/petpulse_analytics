@@ -17,6 +17,7 @@ WITH final AS (
         LOWER(TRIM(customer_email))                                                       AS customer_email,
         CAST(signup_at AS TIMESTAMP)                                                      AS signup_at,
         CASE
+            -- The extract uses the literal string 'None' instead of a real null.
             WHEN TRIM(region_raw) = 'None' THEN NULL
             ELSE TRIM(region_raw)
         END                                                                               AS region,

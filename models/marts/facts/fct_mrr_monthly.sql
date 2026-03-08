@@ -55,7 +55,7 @@ month_spine (revenue_month) AS (
 ),
 
 month_windows AS (
-    -- Attach month-end boundaries and month lengths.
+    -- Attach month-end boundaries and month lengths once for later proration.
     SELECT
         revenue_month,
         CAST(revenue_month + INTERVAL 1 MONTH - INTERVAL 1 DAY AS DATE)                  AS month_end,
@@ -114,6 +114,7 @@ interval_month_revenue AS (
         revenue_month,
         days_in_month,
         DATEDIFF('day', overlap_start, overlap_end) + 1                                   AS active_days_in_month,
+        -- Proration happens here: monthly price times share of active days.
         monthly_cost
             * CAST(DATEDIFF('day', overlap_start, overlap_end) + 1 AS DOUBLE)
             / CAST(days_in_month AS DOUBLE)                                               AS prorated_mrr_amount
@@ -122,6 +123,7 @@ interval_month_revenue AS (
 ),
 
 final AS (
+    -- Multiple resolved intervals can exist within one month after plan changes.
     SELECT
         customer_id,
         revenue_month,
